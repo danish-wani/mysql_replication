@@ -1,0 +1,34 @@
+version: '3.1'
+
+services:
+  primary:
+    image: mysql:8.0
+    container_name: mysql_primary
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_REPLICATION_USER: repl_user
+      MYSQL_REPLICATION_PASSWORD: repl_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./primary_data:/var/lib/mysql
+      - ./primary_config/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./primary_init:/docker-entrypoint-initdb.d
+
+  replica1:
+    image: mysql:8.0
+    container_name: mysql_replica1
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_REPLICATION_USER: repl_user
+      MYSQL_REPLICATION_PASSWORD: repl_password
+    ports:
+      - "3307:3306"
+    depends_on:
+      - primary
+    volumes:
+      - ./replica1_data:/var/lib/mysql
+      - ./replica1_config/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./replica1_init:/docker-entrypoint-initdb.d
